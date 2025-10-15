@@ -4,11 +4,107 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
 
+  // Function to unregister a participant from an activity
+  async function unregisterParticipant(activity, email) {
+    try {
+      const response = await fetch(
+        `/activities/${encodeURIComponent(activity)}/signup?email=${encodeURIComponent(email)}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        messageDiv.textContent = `Successfully unregistered ${email} from ${activity}`;
+        messageDiv.className = "success";
+        fetchActivities(); // Refresh the list
+      } else {
+        const result = await response.json();
+        messageDiv.textContent = result.detail || "An error occurred";
+        messageDiv.className = "error";
+      }
+
+      messageDiv.classList.remove("hidden");
+
+      // Hide message after 5 seconds
+      setTimeout(() => {
+        messageDiv.classList.add("hidden");
+      }, 5000);
+    } catch (error) {
+      messageDiv.textContent = "Failed to unregister. Please try again.";
+      messageDiv.className = "error";
+      messageDiv.classList.remove("hidden");
+      console.error("Error unregistering:", error);
+    }
+  }
+
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
       const response = await fetch("/activities");
-      const activities = await response.json();
+      let activities = await response.json();
+
+      // Agregar actividades adicionales (mock frontend)
+      activities = {
+        ...activities,
+        "Basketball": {
+          description: "Join the school basketball team and compete in local tournaments.",
+          schedule: "Mon & Wed 16:00-18:00",
+          max_participants: 20,
+          participants: [
+            "juan@mergington.edu",
+            "ana@mergington.edu",
+            "carlos@mergington.edu",
+            "lucia@mergington.edu"
+          ],
+        },
+        "Swimming": {
+          description: "Practice swimming and participate in inter-school meets.",
+          schedule: "Tue & Thu 17:00-19:00",
+          max_participants: 15,
+          participants: [
+            "pedro@mergington.edu",
+            "maria@mergington.edu"
+          ],
+        },
+        "Painting": {
+          description: "Explore your creativity with painting workshops.",
+          schedule: "Fri 15:00-17:00",
+          max_participants: 12,
+          participants: [
+            "sofia@mergington.edu",
+            "diego@mergington.edu",
+            "valentina@mergington.edu"
+          ],
+        },
+        "Drama Club": {
+          description: "Act, direct, and produce plays for the school community.",
+          schedule: "Wed 16:00-18:00",
+          max_participants: 18,
+          participants: [
+            "martin@mergington.edu",
+            "laura@mergington.edu"
+          ],
+        },
+        "Chess Club": {
+          description: "Sharpen your mind and compete in chess tournaments.",
+          schedule: "Mon 15:30-17:00",
+          max_participants: 16,
+          participants: [
+            "alejandro@mergington.edu",
+            "camila@mergington.edu",
+            "fernando@mergington.edu"
+          ],
+        },
+        "Math Olympiad": {
+          description: "Prepare for math competitions and solve challenging problems.",
+          schedule: "Thu 16:00-17:30",
+          max_participants: 20,
+          participants: [
+            "paula@mergington.edu"
+          ],
+        },
+      };
 
       // Clear loading message
       activitiesList.innerHTML = "";
@@ -25,6 +121,15 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p><strong>Participants:</strong></p>
+          <ul>
+            ${details.participants.map(email => `
+              <li class="participant">
+                ${email}
+                <span class="delete-icon" onclick="event.stopPropagation(); unregisterParticipant('${name}', '${email}')">×</span>
+              </li>
+            `).join("")}
+          </ul>
         `;
 
         activitiesList.appendChild(activityCard);
@@ -62,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // Actualizar la lista inmediatamente
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
