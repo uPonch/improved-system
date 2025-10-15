@@ -80,10 +80,14 @@ section h3 {
   list-style-type: disc;
 }
 
-.activity-card ul li {
+.activity-card ul li.participant {
   margin-bottom: 6px;
   font-size: 15px;
-  color: #444;
+  color: #1565c0;
+  background: #e3f2fd;
+  border-radius: 3px;
+  padding: 2px 8px;
+  display: inline-block;
 }
 
 .form-group {
