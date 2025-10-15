@@ -4,6 +4,40 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
 
+  // Function to unregister a participant from an activity
+  async function unregisterParticipant(activity, email) {
+    try {
+      const response = await fetch(
+        `/activities/${encodeURIComponent(activity)}/signup?email=${encodeURIComponent(email)}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        messageDiv.textContent = `Successfully unregistered ${email} from ${activity}`;
+        messageDiv.className = "success";
+        fetchActivities(); // Refresh the list
+      } else {
+        const result = await response.json();
+        messageDiv.textContent = result.detail || "An error occurred";
+        messageDiv.className = "error";
+      }
+
+      messageDiv.classList.remove("hidden");
+
+      // Hide message after 5 seconds
+      setTimeout(() => {
+        messageDiv.classList.add("hidden");
+      }, 5000);
+    } catch (error) {
+      messageDiv.textContent = "Failed to unregister. Please try again.";
+      messageDiv.className = "error";
+      messageDiv.classList.remove("hidden");
+      console.error("Error unregistering:", error);
+    }
+  }
+
   // Function to fetch activities from API
   async function fetchActivities() {
     try {
@@ -89,7 +123,12 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
           <p><strong>Participants:</strong></p>
           <ul>
-            ${details.participants.map(email => `<li class="participant">${email}</li>`).join("")}
+            ${details.participants.map(email => `
+              <li class="participant">
+                ${email}
+                <span class="delete-icon" onclick="event.stopPropagation(); unregisterParticipant('${name}', '${email}')">×</span>
+              </li>
+            `).join("")}
           </ul>
         `;
 
@@ -128,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // Actualizar la lista inmediatamente
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";

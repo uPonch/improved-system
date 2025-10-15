@@ -75,9 +75,9 @@ section h3 {
 }
 
 .activity-card ul {
-  margin: 10px 0 10px 20px;
-  padding-left: 20px;
-  list-style-type: disc;
+  margin: 10px 0;
+  padding: 0;
+  list-style-type: none;
 }
 
 .activity-card ul li.participant {
@@ -87,7 +87,22 @@ section h3 {
   background: #e3f2fd;
   border-radius: 3px;
   padding: 2px 8px;
-  display: inline-block;
+  margin-right: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activity-card ul li.participant .delete-icon {
+  color: #c62828;
+  cursor: pointer;
+  font-size: 18px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.activity-card ul li.participant .delete-icon:hover {
+  opacity: 1;
 }
 
 .form-group {
